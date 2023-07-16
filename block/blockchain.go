@@ -112,6 +112,11 @@ func (bc *Blockchain) AddTransaction(sender string, recipent string, value float
 		return true
 	}
 	if bc.veryfyTransactionSignature(senderPublicKey, s, t) {
+		if bc.CalculateTotalAmount(sender) < value {
+			log.Println("ERROR: Not enough balence in a wallet")
+			return false
+
+		}
 		bc.transactionPool = append(bc.transactionPool, t)
 		return true
 	} else {
