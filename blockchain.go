@@ -144,6 +144,23 @@ func (bc *Blockchain) Mining() bool {
 	return true
 }
 
+func (bc *Blockchain) CalculateTotalAmount(blockchainAddress string) float32 {
+	var totalAmount float32 = 0.0
+	for _, b := range bc.chain {
+		for _, t := range b.transactions {
+			value := t.value
+			if blockchainAddress == t.receipentAddress {
+				totalAmount += value
+			}
+			if blockchainAddress == t.senderAddress {
+				totalAmount -= value
+			}
+
+		}
+	}
+	return totalAmount
+}
+
 func NewTransaction(sender string, recipent string, value float32) *Transaction {
 	return &Transaction{sender, recipent, value}
 }
@@ -184,6 +201,7 @@ func main() {
 	blockChain.CreateBlock(nonce, previousHash)
 	blockChain.Print()
 
+	fmt.Printf("A %.1f\n", blockChain.CalculateTotalAmount("B"))
 	// previousHash1 := blockChain.LastBlock().Hash()
 	// blockChain.CreateBlock(6, previousHash1)
 	// blockChain.Print()
