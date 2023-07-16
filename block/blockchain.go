@@ -1,4 +1,4 @@
-package main
+package block
 
 import (
 	"crypto/sha256"
@@ -182,35 +182,4 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		Recipient: t.receipentAddress,
 		Value:     t.value,
 	})
-}
-
-func init() {
-	log.SetPrefix("Blockchain: ")
-}
-
-func main() {
-	myBlockchainAddress := "my_blockchain_address"
-	blockChain := NewBlockchain(myBlockchainAddress)
-	blockChain.Print()
-
-	blockChain.AddTransaction("A", "B", 10)
-	blockChain.AddTransaction("A", "B", 10)
-	blockChain.Mining()
-	previousHash := blockChain.LastBlock().Hash()
-	nonce := blockChain.ProofOfWork()
-	blockChain.CreateBlock(nonce, previousHash)
-	blockChain.Print()
-
-	fmt.Printf("A %.1f\n", blockChain.CalculateTotalAmount("B"))
-	// previousHash1 := blockChain.LastBlock().Hash()
-	// blockChain.CreateBlock(6, previousHash1)
-	// blockChain.Print()
-
-	// previousHash2 := blockChain.LastBlock().Hash()
-	// blockChain.CreateBlock(7, previousHash2)
-	// blockChain.Print()
-	// blockChain.CreateBlock(1, "hash 1")
-	// blockChain.Print()
-	// block := &Block{nonce: 1}
-	// fmt.Printf("%x\n", block.Hash())
 }
