@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blockchain/block"
 	"blockchain/wallet"
 	"fmt"
 	"log"
@@ -11,36 +12,22 @@ func init() {
 }
 
 func main() {
-	w := wallet.NewWallet()
-	fmt.Println(w.PrivateKeyStr())
-	fmt.Println(w.PublicKeyStr())
-	fmt.Println(w.BlockchainAddress())
+	walletM := wallet.NewWallet()
+	walletA := wallet.NewWallet()
+	walletB := wallet.NewWallet()
 
-	t := wallet.NewTransaction(w.PrivateKey(), w.PublicKey(), w.BlockchainAddress(), "B", 1.0)
-	fmt.Printf("signature %s \n", t.GenerateSignature())
-	// myBlockchainAddress := "my_blockchain_address"
-	// blockChain := NewBlockchain(myBlockchainAddress)
-	// blockChain.Print()
+	// wallet
+	t := wallet.NewTransaction(walletA.PrivateKey(), walletA.PublicKey(), walletA.BlockchainAddress(), walletB.BlockchainAddress(), 10)
 
-	// blockChain.AddTransaction("A", "B", 10)
-	// blockChain.AddTransaction("A", "B", 10)
-	// blockChain.Mining()
-	// previousHash := blockChain.LastBlock().Hash()
-	// nonce := blockChain.ProofOfWork()
-	// blockChain.CreateBlock(nonce, previousHash)
-	// blockChain.Print()
+	// blockchain
+	blockchain := block.NewBlockchain(walletM.BlockchainAddress())
+	isadded := blockchain.AddTransaction(walletA.BlockchainAddress(), walletB.BlockchainAddress(), 10, walletA.PublicKey(), t.GenerateSignature())
+	fmt.Println("Added", isadded)
 
-	// fmt.Printf("B %.1f\n", blockChain.CalculateTotalAmount("B"))
-	// fmt.Printf("A %.1f\n", blockChain.CalculateTotalAmount("A"))
-	// previousHash1 := blockChain.LastBlock().Hash()
-	// blockChain.CreateBlock(6, previousHash1)
-	// blockChain.Print()
+	blockchain.Mining()
+	blockchain.Print()
 
-	// previousHash2 := blockChain.LastBlock().Hash()
-	// blockChain.CreateBlock(7, previousHash2)
-	// blockChain.Print()
-	// blockChain.CreateBlock(1, "hash 1")
-	// blockChain.Print()
-	// block := &Block{nonce: 1}
-	// fmt.Printf("%x\n", block.Hash())
+	fmt.Printf("A %.1f\n", blockchain.CalculateTotalAmount(walletA.BlockchainAddress()))
+	fmt.Printf("B %.1f\n", blockchain.CalculateTotalAmount(walletB.BlockchainAddress()))
+	fmt.Printf("M %.1f\n", blockchain.CalculateTotalAmount(walletM.BlockchainAddress()))
 }

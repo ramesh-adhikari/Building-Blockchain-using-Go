@@ -1,13 +1,13 @@
 package wallet
 
 import (
+	"blockchain/utility"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"math/big"
 
 	"github.com/btcsuite/btcutil/base58"
 	"golang.org/x/crypto/ripemd160"
@@ -91,16 +91,11 @@ func NewTransaction(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey, se
 	return &Transaciton{privateKey, publicKey, sender, recipient, value}
 }
 
-type Signature struct {
-	R *big.Int
-	S *big.Int
-}
-
-func (t *Transaciton) GenerateSignature() *Signature {
+func (t *Transaciton) GenerateSignature() *utility.Signature {
 	m, _ := json.Marshal(t)
 	h := sha256.Sum256([]byte(m))
 	r, s, _ := ecdsa.Sign(rand.Reader, t.senderPrivateKey, h[:])
-	return &Signature{r, s}
+	return &utility.Signature{r, s}
 }
 
 func (t *Transaciton) MarshalJSON() ([]byte, error) {
@@ -113,8 +108,4 @@ func (t *Transaciton) MarshalJSON() ([]byte, error) {
 		Recipient: t.receipentAddress,
 		Value:     t.value,
 	})
-}
-
-func (s *Signature) String() string {
-	return fmt.Sprintf("%x%x", s.R, s.S)
 }
