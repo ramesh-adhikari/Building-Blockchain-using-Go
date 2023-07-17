@@ -10,9 +10,9 @@ func init() {
 }
 
 func main() {
-	port := flag.Uint("port", 5000, "TCP Port number for Server")
+	port := flag.Uint("port", 5001, "TCP Port number for Server")
 	flag.Parse()
 	// server := new(Server)
-	app := NewServer(uint16(*port))
+	app := NewBlockchainServer(uint16(*port))
 	app.Run()
 }

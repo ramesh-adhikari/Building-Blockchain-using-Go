@@ -11,19 +11,19 @@ import (
 
 var cache map[string]*block.Blockchain = make(map[string]*block.Blockchain)
 
-type Server struct {
+type BlockchainServer struct {
 	port uint16
 }
 
-func NewServer(port uint16) *Server {
-	return &Server{port}
+func NewBlockchainServer(port uint16) *BlockchainServer {
+	return &BlockchainServer{port}
 }
 
-func (s *Server) Port() uint16 {
+func (s *BlockchainServer) Port() uint16 {
 	return s.port
 }
 
-func (s *Server) GetBlockchain() *block.Blockchain {
+func (s *BlockchainServer) GetBlockchain() *block.Blockchain {
 	bc, ok := cache["blockchain"]
 	if !ok {
 		minerWallet := wallet.NewWallet()
@@ -36,7 +36,7 @@ func (s *Server) GetBlockchain() *block.Blockchain {
 	return bc
 }
 
-func (s *Server) GetChain(w http.ResponseWriter, req *http.Request) {
+func (s *BlockchainServer) GetChain(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
 		w.Header().Add("Content-Type", "application/json")
@@ -47,7 +47,7 @@ func (s *Server) GetChain(w http.ResponseWriter, req *http.Request) {
 	log.Printf("ERROR: Invalid HTTP Method")
 }
 
-func (s *Server) Run() {
+func (s *BlockchainServer) Run() {
 	http.HandleFunc("/", s.GetChain)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+strconv.Itoa(int(s.Port())), nil))
 }
