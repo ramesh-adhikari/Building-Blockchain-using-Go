@@ -1,9 +1,9 @@
 package main
 
 import (
+	"blockchain/utility"
 	"blockchain/wallet"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -71,11 +71,18 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 			log.Println("ERROR: missing field(s)")
 			return
 		}
-		fmt.Println(*t.SenderPublicKey)
-		fmt.Println(*t.SenderBlockchainAddress)
-		fmt.Println(*t.SenderPrivateKey)
-		fmt.Println(*t.RecipientBlockchainAddress)
-		fmt.Println(*t.Value)
+		publicKey := utility.PublicKeyFromString(*t.SenderPublicKey)
+		privateKey := utility.PrivateKeyFromString(*t.SenderPrivateKey, publicKey)
+		value, err := strconv.ParseFloat(*t.Value, 32)
+
+		if err != nil {
+			log.Println("ERROR: amount parse error")
+			return
+		}
+
+		value32 := float32(value)
+
+		w.Header().Add("Content-Type", "application/json")
 
 	default:
 		w.WriteHeader(http.StatusBadRequest)
