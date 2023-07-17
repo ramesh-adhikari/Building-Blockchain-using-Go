@@ -2,11 +2,80 @@
 <html>
 <head>
 <title>Page Title</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script>
+    $(function(){
+        $.ajax({
+            url: '/wallet',
+            type: 'POST',
+            success: function (response) {
+                $('#public_key').val(response['public_key']);
+                $('#private_key').val(response['private_key']);
+                $('#blockchain_address').val(response['blockchain_address']);
+                console.info(response)
+            },
+            error: function(error) {
+                console.error(error);
+            }
+        })
+    })
+
+    $(document).ready(function () {
+    $( "#send_money_button" ).on( "click", function() {
+
+    var formData = {
+        'sender_public_key': $("#public_key").val(),
+        'sender_private_key': $("#private_key").val(),
+        'sender_blockchain_address' : $("#blockchain_address").val(),
+        'recipient_blockchain_address': $("#recipient_blockchain_address").val(),
+        'value': $("#send_amount").val(),
+    };
+   
+    $.ajax({
+      type: "POST",
+      url: "/transaction",
+      contentType: 'application/json',
+      data: JSON.stringify(formData),
+    }).done(function (data) {
+      console.log(data);
+    });
+
+    event.preventDefault();
+  });
+});
+</script>
 </head>
 <body>
 
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
+<div>
+    <h1>Wallet</h1>
+    <div id="wallet_amount">0</div>
+    <button id="reload_wallet">Reload Wallet</button>
+
+    <p>Public Key</p>
+    <textarea id="public_key" rows="1" cols="100"></textarea>
+
+    <p>Private Key</p>
+    <textarea id="private_key" rows="1" cols="100"></textarea>
+
+    <p>Blockchain Address</p>
+    <textarea id="blockchain_address" rows="1" cols="100"></textarea>
+</div>
+
+<div>
+    <h1>Send Money</h1>
+    <div>
+        Address :
+        <input id="recipient_blockchain_address" size="100" type="text">
+    <br>
+    <br>
+    Amount:
+    <input id="send_amount" type="text">
+    <br>
+    <br>
+    <button id="send_money_button">Send</button>
+    </div>
+</div>
 
 </body>
 </html>
