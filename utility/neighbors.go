@@ -3,12 +3,18 @@ package utility
 import (
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
 )
 
 func IsFoundHost(guessHost string, port uint16) bool {
+	_, err := http.Get("http://" + fmt.Sprintf("%s:%d", guessHost, port))
+	if err != nil {
+		print(err.Error())
+		return false
+	}
 	return true
 }
 
