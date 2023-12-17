@@ -18,11 +18,11 @@ for ((b_server = "$BLOCKCHAIN_SERVER_PORT_RANGE_START"; b_server <= "$BLOCKCHAIN
 done
 
 # Wait for a brief moment to ensure servers have started
-sleep 25
+sleep 5
 
 # start wlalet server 1 and 2
 go run wallet/server/main.go wallet/server/server.go -port "$WALLET_SERVER_ONE_PORT" -gateway "$WALLET_SERVER_ONE_GATEWAT" &
-sleep 10
+sleep 5
 go run wallet/server/main.go wallet/server/server.go -port "$WALLET_SERVER_TWO_PORT" -gateway "$WALLET_SERVER_TWO_GATEWAT" &
 
 # Wait for all background processes to finish

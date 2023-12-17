@@ -2,6 +2,7 @@ package block
 
 import (
 	"blockchain/utility"
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/sha256"
 	"encoding/hex"
@@ -222,8 +223,22 @@ type Transaction struct {
 func (bc *Blockchain) CreateTransaction(sender string, recipent string, value float32, senderPublicKey *ecdsa.PublicKey, s *utility.Signature) bool {
 	isTransacted := bc.AddTransaction(sender, recipent, value, senderPublicKey, s)
 
-	// TODO
-	// Sync
+	if isTransacted {
+		for _, n := range bc.neighbors {
+			publicKeyStr := fmt.Sprintf("%064x%064x", senderPublicKey.X.Bytes(),
+				senderPublicKey.Y.Bytes())
+			signatureStr := s.String()
+			bt := &TransactionRequest{&sender, &recipent, &publicKeyStr, &value, &signatureStr}
+			m, _ := json.Marshal(bt)
+			buf := bytes.NewBuffer(m)
+			endpoint := fmt.Sprintf("http://%s/transactions", n)
+			client := &http.Client{}
+			req, _ := http.NewRequest("PUT", endpoint, buf)
+			resp, _ := client.Do(req)
+			log.Printf("%v", resp)
+		}
+	}
+
 	return isTransacted
 }
 

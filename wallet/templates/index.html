@@ -38,10 +38,15 @@
       data: JSON.stringify(formData),
       success: function (response) {
         console.info(response);
-        if(response.message === "fail") {
+        console.log(response.message)
+        var response = response.message
+        var fail_status = "fail"
+        if(response === fail_status) {
+            console.log("here")
             alert("Send Failed")
             // return
         }else{
+            console.log("here1")
             alert('Send Success')
         }
         
