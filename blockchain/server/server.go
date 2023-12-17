@@ -70,10 +70,12 @@ func (bcs *BlockchainServer) Transacitons(w http.ResponseWriter, req *http.Reque
 		err := decoder.Decode(&t)
 		if err != nil {
 			log.Printf("ERROR: %v", err)
+			io.WriteString(w, string(utility.JsonStatus("fail")))
 		}
 
 		if !t.Validate() {
 			log.Println("ERROR: missing field(s)")
+			io.WriteString(w, string(utility.JsonStatus("fail")))
 		}
 
 		publicKey := utility.PublicKeyFromString(*t.SenderPublicKey)
@@ -81,13 +83,13 @@ func (bcs *BlockchainServer) Transacitons(w http.ResponseWriter, req *http.Reque
 		bc := bcs.GetBlockchain()
 		isCreated := bc.CreateTransaction(*t.SenderBlockchainAddress, *t.RecipientBlockchainAddress, *t.Value, publicKey, signature)
 		w.Header().Add("Content-Type", "application/json")
-		var m string
+		var m []byte
 		if !isCreated {
 			w.WriteHeader(http.StatusBadRequest)
-			m = "fail"
+			m = utility.JsonStatus("fail")
 		} else {
 			w.WriteHeader(http.StatusCreated)
-			m = "success"
+			m = utility.JsonStatus("success")
 		}
 		io.WriteString(w, string(m))
 	case http.MethodDelete:
@@ -105,13 +107,13 @@ func (bcs *BlockchainServer) Mine(w http.ResponseWriter, req *http.Request) {
 		bc := bcs.GetBlockchain()
 		isMined := bc.Mining()
 
-		// var m [] byte
-		var m string
+		var m []byte
+		// var m string
 		if !isMined {
 			w.WriteHeader(http.StatusBadRequest)
-			m = "Fail"
+			m = utility.JsonStatus("fail")
 		} else {
-			m = "success"
+			m = utility.JsonStatus("success")
 		}
 		w.Header().Add("Content_type", "application/json")
 		io.WriteString(w, string(m))

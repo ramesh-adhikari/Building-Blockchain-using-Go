@@ -15,7 +15,7 @@ import (
 	"strconv"
 )
 
-const TEMP_DIR = "templates"
+const TEMP_DIR = "wallet/templates"
 
 type WalletServer struct {
 	port uint16
@@ -67,11 +67,12 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 		error := decoder.Decode(&t)
 		if error != nil {
 			log.Printf("ERROR: %v", error)
-			// io.WriteString(w, string(utils.JsonStatus("fail")))
+			io.WriteString(w, string(utility.JsonStatus("fail")))
 			return
 		}
 		if !t.Validate() {
 			log.Println("ERROR: missing field(s)")
+			io.WriteString(w, string(utility.JsonStatus("fail")))
 			return
 		}
 		publicKey := utility.PublicKeyFromString(*t.SenderPublicKey)
@@ -79,7 +80,8 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 		value, err := strconv.ParseFloat(*t.Value, 32)
 
 		if err != nil {
-			log.Println("ERROR: amount parse error")
+			log.Println("ERROR: parse error")
+			io.WriteString(w, string(utility.JsonStatus("fail")))
 			return
 		}
 
@@ -104,10 +106,12 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 		resp, _ := http.Post(ws.Gateway()+"/transactions", "application/json", buf)
 
 		if resp.StatusCode == 201 {
+			io.WriteString(w, string(utility.JsonStatus("success")))
 			log.Println("SUCCESS: transaction send from wallet server to blockchain server")
 			return
 		}
-		log.Println("ERROR: Error occurs when sending transaction  from wallet server to blockchain server")
+		io.WriteString(w, string(utility.JsonStatus("fali")))
+		// log.Println("ERROR: Error occurs when sending transaction  from wallet server to blockchain server")
 
 	default:
 		w.WriteHeader(http.StatusBadRequest)
@@ -131,6 +135,7 @@ func (ws *WalletServer) WalletAmount(w http.ResponseWriter, req *http.Request) {
 		bcsResq, err := client.Do(bcsReq)
 		if err != nil {
 			log.Printf("ERROR: %v", err)
+			io.WriteString(w, string(utility.JsonStatus("fail")))
 			return
 		}
 		w.Header().Add("Content-Type", "application/json")
@@ -152,6 +157,9 @@ func (ws *WalletServer) WalletAmount(w http.ResponseWriter, req *http.Request) {
 				Amount:  bar.Amount,
 			})
 			io.WriteString(w, string(m[:]))
+		} else {
+			io.WriteString(w, string(utility.JsonStatus("fail")))
+			w.WriteHeader(http.StatusBadRequest)
 		}
 	default:
 		w.WriteHeader(http.StatusBadRequest)
