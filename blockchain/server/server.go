@@ -194,9 +194,9 @@ func (bcs *BlockchainServer) Consensus(w http.ResponseWriter, req *http.Request)
 
 		w.Header().Add("Content-Type", "application/json")
 		if replaced {
-			println("Success")
+			io.WriteString(w, string(utility.JsonStatus("success")))
 		} else {
-			println("Fail")
+			io.WriteString(w, string(utility.JsonStatus("fail")))
 		}
 	default:
 		log.Printf("ERROR: Invalid HTTP Method")
